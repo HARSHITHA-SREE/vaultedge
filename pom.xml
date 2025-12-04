@@ -76,9 +76,13 @@
 
     <!-- Flyway for migrations -->
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-    </dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-core</artifactId>
+</dependency>
+  <dependency>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-mysql</artifactId>
+</dependency>
 
     <!-- Lombok (compile-time) -->
     <dependency>

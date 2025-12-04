@@ -55,7 +55,7 @@ public class CustomerController {
 
     private CustomerResponse toResp(Customer c) {
         return CustomerResponse.builder()
-                .id(c.getId())
+                .id(c.getId().toString())
                 .fullName(c.getFullName())
                 .email(c.getEmail())
                 .phone(c.getPhone())

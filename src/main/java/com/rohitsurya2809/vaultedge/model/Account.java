@@ -7,17 +7,19 @@ import java.util.UUID;
 
 @Entity
 @Table(name="accounts")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Account {
   @Id
+  @Column(columnDefinition = "BINARY(16)", nullable = false)
+  @Builder.Default
   private UUID id = UUID.randomUUID();
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name="customer_id", nullable = false, columnDefinition = "BINARY(16)")
+  private Customer customer;
 
   @Column(name="account_number", unique=true, nullable=false)
   private String accountNumber;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name="customer_id")
-  private Customer customer;
 
   @Column(name="account_type")
   private String accountType;
@@ -32,4 +34,3 @@ public class Account {
   @Version
   private Long version;
 }
-

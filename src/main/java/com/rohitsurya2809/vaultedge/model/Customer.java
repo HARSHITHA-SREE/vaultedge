@@ -7,16 +7,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "customers")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Customer {
 
     @Id
-    @Column(length = 36)
-    private String id;
+    @Column(columnDefinition = "BINARY(16)", nullable = false)
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -25,7 +22,7 @@ public class Customer {
     private String email;
 
     @Column(nullable = false)
-    private String password; // hashed
+    private String password;
 
     private String phone;
 
@@ -40,7 +37,7 @@ public class Customer {
 
     @PrePersist
     public void prePersist() {
-        if (this.id == null) this.id = UUID.randomUUID().toString();
+        if (this.id == null) this.id = UUID.randomUUID();
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
     }
