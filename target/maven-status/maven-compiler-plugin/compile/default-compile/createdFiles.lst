@@ -9,6 +9,7 @@ com\rohitsurya2809\vaultedge\dto\TransferRequest.class
 com\rohitsurya2809\vaultedge\repository\AccountRepository.class
 com\rohitsurya2809\vaultedge\service\CustomerController.class
 com\rohitsurya2809\vaultedge\config\UUIDConverter.class
+com\rohitsurya2809\vaultedge\exception\ApiError.class
 com\rohitsurya2809\vaultedge\service\AccountService.class
 com\rohitsurya2809\vaultedge\repository\AuthUserRepository.class
 com\rohitsurya2809\vaultedge\dto\TransactionResponse.class
