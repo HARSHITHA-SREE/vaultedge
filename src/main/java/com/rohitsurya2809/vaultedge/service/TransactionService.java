@@ -8,6 +8,7 @@ import com.rohitsurya2809.vaultedge.model.Transaction;
 import com.rohitsurya2809.vaultedge.repository.AccountRepository;
 import com.rohitsurya2809.vaultedge.repository.TransactionRepository;
 import com.rohitsurya2809.vaultedge.repository.TransactionSpecification;
+import com.rohitsurya2809.vaultedge.service.AuditService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,14 +33,19 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final IdempotencyService idempotencyService;
+    private final AuditService auditService;
 
     public TransactionService(AccountRepository accountRepository,
                               TransactionRepository transactionRepository,
-                              IdempotencyService idempotencyService) {
+                              IdempotencyService idempotencyService,
+                              AuditService auditService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
         this.idempotencyService = idempotencyService;
+        this.auditService = auditService;
     }
+
+    
 
     // ---------- Deposit ----------
     @Transactional
@@ -73,10 +79,23 @@ public class TransactionService {
                 .build();
 
         transactionRepository.save(tx);
+        auditService.log(
+    "DEPOSIT",
+    account.getCustomer().getId(),
+    tx.getId(),
+    null,
+    Map.of(
+        "accountId", accountId,
+        "amount", amount,
+        "balanceAfter", newBalance
+    )
+);
+
 
         TransactionResponse resp = toResponse(tx);
 
         if (idempKey != null) idempotencyService.save(idempKey, resp);
+        
 
         return resp;
     }
@@ -118,6 +137,18 @@ public class TransactionService {
                 .build();
 
         transactionRepository.save(tx);
+        auditService.log(
+    "WITHDRAW",
+    account.getCustomer().getId(),
+    tx.getId(),
+    null,
+    Map.of(
+        "accountId", accountId,
+        "amount", amount,
+        "balanceAfter", newBalance
+    )
+);
+
 
         TransactionResponse resp = toResponse(tx);
 
@@ -180,6 +211,19 @@ public class TransactionService {
                 .createdAt(OffsetDateTime.now())
                 .build();
         transactionRepository.save(outTx);
+        auditService.log(
+    "TRANSFER",
+    from.getCustomer().getId(),
+    outTx.getId(),
+    null,
+    Map.of(
+        "fromAccountId", req.getFromAccountId(),
+        "toAccountId", req.getToAccountId(),
+        "amount", amount,
+        "referenceId", req.getReferenceId()
+    )
+);
+
 
         Transaction inTx = Transaction.builder()
                 .id(UUID.randomUUID())
@@ -192,6 +236,20 @@ public class TransactionService {
                 .createdAt(OffsetDateTime.now())
                 .build();
         transactionRepository.save(inTx);
+
+        auditService.log(
+    "TRANSFER",
+    from.getCustomer().getId(),
+    outTx.getId(),
+    null,
+    Map.of(
+        "fromAccountId", req.getFromAccountId(),
+        "toAccountId", req.getToAccountId(),
+        "amount", amount,
+        "referenceId", req.getReferenceId()
+    )
+);
+
 
         TransactionResponse resp = toResponse(outTx);
 

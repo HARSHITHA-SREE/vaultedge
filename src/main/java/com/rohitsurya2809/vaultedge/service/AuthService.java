@@ -29,17 +29,19 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final AuditService auditService;
 
     public AuthService(CustomerRepository customerRepository,
                        AuthUserRepository authUserRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager, AuditService auditService) {
         this.customerRepository = customerRepository;
         this.authUserRepository = authUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
+        this.auditService = auditService;
     }
 
     /**
@@ -81,38 +83,67 @@ public class AuthService {
      * Authenticate credentials and return JWT
      */
     public LoginResponse login(LoginRequest req) {
-        // 1) authenticate using AuthenticationManager
+    try {
+        // 1) authenticate
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        req.getUsername(),
+                        req.getPassword()
+                )
         );
 
-        // 2) load auth user from DB (to get id, roles, etc.)
+        // 2) load auth user
         AuthUser authUser = authUserRepository.findByUsername(req.getUsername())
                 .orElseThrow(() -> new BadRequestException("Invalid user"));
 
-        // 3) build claims (uid, roles)
+        // 3) build claims
         Map<String, Object> claims = new HashMap<>();
-        if (authUser.getCustomer() != null) {
-            claims.put("uid", authUser.getCustomer().getId().toString());
-        } else {
-            // Fallback: if AuthUser has its own id representing user, include it
-            claims.put("uid", authUser.getId().toString());
-        }
-        if (authUser.getRoles() != null) {
-            claims.put("roles", authUser.getRoles());
-        }
+        UUID userId = authUser.getCustomer() != null
+                ? authUser.getCustomer().getId()
+                : authUser.getId();
+
+        claims.put("uid", userId.toString());
+        claims.put("roles", authUser.getRoles());
 
         // 4) generate token
-        String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getCustomer() != null ? authUser.getCustomer().getId() : authUser.getId(), claims);
+        String token = jwtUtil.generateToken(
+                authUser.getUsername(),
+                userId,
+                claims
+        );
 
-        // 5) set SecurityContext (optional but useful for downstream code)
+        // 5) set security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 6) return response
+        // 6) audit SUCCESS
+        auditService.log(
+                "LOGIN_SUCCESS",
+                userId,
+                null,
+                null,
+                Map.of("username", authUser.getUsername())
+        );
+
+        // 7) return response
         return LoginResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
                 .expiresIn(jwtUtil.getRemainingSeconds(token))
                 .build();
+
+    } catch (Exception ex) {
+
+        // audit FAILURE
+        auditService.log(
+                "LOGIN_FAILED",
+                null,
+                null,
+                null,
+                Map.of("username", req.getUsername())
+        );
+
+        throw new BadRequestException("Invalid username or password");
     }
+}
+
 }

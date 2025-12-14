@@ -7,6 +7,8 @@ D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\exception\GlobalExceptio
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\model\IdempotencyKey.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\model\Account.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\controller\AccountController.java
+D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\service\AuditService.java
+D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\model\AuditLog.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\repository\IdempotencyKeyRepository.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\config\SecurityConfig.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\dto\RegisterRequest.java
@@ -33,6 +35,7 @@ D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\dto\WithdrawRequest.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\dto\LoginRequest.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\repository\AuthUserRepository.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\service\CustomerService.java
+D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\repository\AuditLogRepository.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\controller\TransactionController.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\controller\AdminController.java
 D:\vaultedge\src\main\java\com\rohitsurya2809\vaultedge\exception\NotFoundException.java
